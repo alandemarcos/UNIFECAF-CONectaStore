@@ -1,15 +1,15 @@
 use std::collections::HashMap;
 
 use crate::graph::{Edge, EdgeType, Graph, VertexKind};
-use crate::models::{
-    Category, CategoryId, Customer, CustomerId, Product, ProductId, VertexId,
-};
+use crate::models::{Category, CategoryId, Customer, CustomerId, Product, ProductId, VertexId};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum StoreError {
     CategoryNotFound,
     ProductNotFound,
     CustomerNotFound,
+    CustomerAlreadyExists,
+    InvalidInput,
     GraphError(crate::graph::GraphError),
 }
 
@@ -95,12 +95,19 @@ impl Store {
         price: f64,
         description: impl Into<String>,
     ) -> Result<Product, StoreError> {
+        let name = name.into();
+        if name.trim().is_empty() {
+            return Err(StoreError::InvalidInput);
+        }
+        if !price.is_finite() || price < 0.0 {
+            return Err(StoreError::InvalidInput);
+        }
         if !self.categories.contains_key(&category_id) {
             return Err(StoreError::CategoryNotFound);
         }
         let id = ProductId(self.next_product_id);
         self.next_product_id += 1;
-        let product = Product::new(id, name, category_id, price, description);
+        let product = Product::new(id, name, category_id, price, description.into());
         self.products.insert(id, product.clone());
         let vertex = self.graph.add_vertex(VertexKind::Product(id))?;
         self.product_vertices.insert(id, vertex);
@@ -129,8 +136,35 @@ impl Store {
     // --- Customers ---
 
     pub fn register_customer(&mut self, name: impl Into<String>) -> Result<Customer, StoreError> {
+        let name = name.into();
+        if name.trim().is_empty() {
+            return Err(StoreError::InvalidInput);
+        }
         let id = CustomerId(self.next_customer_id);
         self.next_customer_id += 1;
+        self.insert_customer(id, name)
+    }
+
+    /// Cadastra cliente com ID explícito (CLI). Rejeita ID duplicado.
+    pub fn register_customer_with_id(
+        &mut self,
+        id: CustomerId,
+        name: impl Into<String>,
+    ) -> Result<Customer, StoreError> {
+        let name = name.into();
+        if name.trim().is_empty() {
+            return Err(StoreError::InvalidInput);
+        }
+        if self.customers.contains_key(&id) {
+            return Err(StoreError::CustomerAlreadyExists);
+        }
+        if id.0 >= self.next_customer_id {
+            self.next_customer_id = id.0 + 1;
+        }
+        self.insert_customer(id, name)
+    }
+
+    fn insert_customer(&mut self, id: CustomerId, name: String) -> Result<Customer, StoreError> {
         let customer = Customer::new(id, name);
         self.customers.insert(id, customer.clone());
         let vertex = self.graph.add_vertex(VertexKind::Customer(id))?;
@@ -174,11 +208,8 @@ impl Store {
             .get(&product_id)
             .copied()
             .ok_or(StoreError::ProductNotFound)?;
-        self.graph.add_undirected_edge(
-            c_v,
-            p_v,
-            Edge::new(p_v, EdgeType::Purchased, weight),
-        )?;
+        self.graph
+            .add_undirected_edge(c_v, p_v, Edge::new(p_v, EdgeType::Purchased, weight))?;
         if let Some(customer) = self.customers.get_mut(&customer_id) {
             if !customer.purchased_product_ids.contains(&product_id) {
                 customer.purchased_product_ids.push(product_id);
@@ -270,6 +301,27 @@ mod tests {
         let mut store = Store::new();
         let c = store.register_customer("Maria").expect("customer");
         assert_eq!(store.get_customer(c.id).unwrap().name, "Maria");
+    }
+
+    #[test]
+    fn register_customer_rejects_empty_name() {
+        let mut store = Store::new();
+        assert!(matches!(
+            store.register_customer("   "),
+            Err(StoreError::InvalidInput)
+        ));
+    }
+
+    #[test]
+    fn register_customer_rejects_duplicate_id() {
+        let mut store = Store::new();
+        store
+            .register_customer_with_id(CustomerId(5), "A")
+            .expect("first");
+        assert!(matches!(
+            store.register_customer_with_id(CustomerId(5), "B"),
+            Err(StoreError::CustomerAlreadyExists)
+        ));
     }
 
     #[test]

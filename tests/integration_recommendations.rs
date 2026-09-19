@@ -19,9 +19,7 @@ fn build_test_store() -> (Store, CustomerId, ProductId, ProductId) {
     store
         .link_purchase(customer.id, p1.id, 1.0)
         .expect("purchase");
-    store
-        .link_similar_products(p1.id, p2.id, 0.9)
-        .expect("sim");
+    store.link_similar_products(p1.id, p2.id, 0.9).expect("sim");
     store
         .link_similar_products(p2.id, p3.id, 0.8)
         .expect("sim2");

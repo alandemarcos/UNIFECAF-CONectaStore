@@ -3,9 +3,7 @@ use crate::repository::Store;
 /// Gera catálogo sintético com cadeias de similaridade para medir recomendação em escala.
 pub fn build_synthetic_store(product_count: usize) -> Store {
     let mut store = Store::new();
-    let cat = store
-        .register_category("Eletrônicos")
-        .expect("category");
+    let cat = store.register_category("Eletrônicos").expect("category");
 
     let mut prev = store
         .register_product("Produto-0", cat.id, 100.0, "seed")

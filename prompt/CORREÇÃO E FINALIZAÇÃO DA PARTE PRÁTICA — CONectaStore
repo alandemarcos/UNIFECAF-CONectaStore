@@ -1,0 +1,695 @@
+# CORREÇÃO E FINALIZAÇÃO DA PARTE PRÁTICA — CONectaStore
+
+Você já implementou o projeto acadêmico **CONectaStore — Sistema de Recomendação de Produtos Baseado em Grafos**, em Rust.
+
+Agora precisamos realizar a **auditoria final, correção dos pontos identificados e validação completa** antes da entrega acadêmica.
+
+IMPORTANTE:
+
+NÃO reescreva o projeto do zero.
+
+NÃO faça uma grande refatoração da arquitetura que já está funcionando.
+
+NÃO remova funcionalidades existentes.
+
+Preserve a arquitetura atual:
+
+models → graph → repository → recommendation
+
+com os módulos auxiliares:
+
+utils
+benchmark
+main/CLI
+
+O objetivo desta etapa é:
+
+1. corrigir as pendências identificadas;
+2. melhorar pequenos pontos técnicos;
+3. validar todos os requisitos do professor;
+4. executar testes reais;
+5. garantir que o README corresponda exatamente ao código;
+6. deixar o projeto pronto para apresentação e entrega.
+
+==================================================
+
+1. CONTEXTO ACADÊMICO
+   ==================================================
+
+O projeto deve atender aos requisitos da Parte Prática da disciplina Data Structure Strategy and Implementation.
+
+O professor exige:
+
+* cadastro e consulta de produtos;
+* construção do grafo;
+* gerenciamento das conexões;
+* recomendação a partir de cliente ou produto;
+* BFS, DFS ou outro algoritmo justificado;
+* HashMap ou estruturas complementares;
+* prevenção de recomendações duplicadas;
+* testes unitários;
+* testes de integração;
+* medição básica do tempo de execução com diferentes volumes;
+* projeto organizado em Rust;
+* README completo.
+
+A implementação atual já atende a maior parte desses requisitos.
+
+Agora faça uma auditoria final sem destruir o que já funciona.
+
+==================================================
+2. PRIMEIRA ETAPA — AUDITORIA
+=============================
+
+Antes de modificar qualquer código:
+
+1. Analise a estrutura atual do projeto.
+2. Analise Cargo.toml.
+3. Analise src/.
+4. Analise tests/.
+5. Analise README.md.
+6. Analise o benchmark.
+7. Analise a CLI.
+8. Analise os testes existentes.
+
+Crie mentalmente uma matriz:
+
+REQUISITO → IMPLEMENTAÇÃO → STATUS → AÇÃO NECESSÁRIA
+
+Não faça alterações desnecessárias.
+
+==================================================
+3. CORREÇÃO 1 — CADASTRO DE CLIENTE NA CLI
+==========================================
+
+O projeto atualmente possui:
+
+Store::register_customer
+
+porém o cadastro de cliente não está disponível diretamente no menu principal da CLI.
+
+Adicione essa funcionalidade.
+
+A CLI deve permitir:
+
+1. Listar produtos
+2. Consultar produto
+3. Cadastrar produto
+4. Listar clientes
+5. Consultar cliente
+6. Cadastrar cliente
+7. Recomendar produtos para cliente
+8. Recomendar produtos relacionados a produto
+9. Exibir informações do grafo
+10. Executar demonstração
+11. Executar benchmark
+12. Sair
+
+Se a numeração atual for diferente, ajuste de maneira coerente.
+
+O cadastro deve:
+
+* solicitar ID ou gerar ID conforme arquitetura existente;
+* solicitar nome;
+* validar entrada;
+* impedir IDs duplicados;
+* registrar o cliente no Store;
+* criar o vértice correspondente no grafo;
+* informar sucesso ou erro.
+
+Não quebre o carregamento dos dados de demonstração.
+
+==================================================
+4. CORREÇÃO 2 — BENCHMARK
+=========================
+
+Faça uma melhoria no benchmark atual.
+
+O projeto já utiliza:
+
+std::time::Instant
+
+e volumes de:
+
+* 100 produtos;
+* 1.000 produtos;
+* 10.000 produtos.
+
+Mantenha esses volumes.
+
+Porém, não apresente somente milissegundos inteiros quando isso puder resultar em:
+
+0 ms
+
+Isso reduz a qualidade da demonstração acadêmica.
+
+Implemente uma medição mais precisa.
+
+Preferencialmente:
+
+Duration::as_micros()
+
+ou:
+
+Duration::as_nanos()
+
+Escolha uma unidade adequada para apresentação.
+
+Além disso, avalie se uma única execução é suficientemente estável.
+
+Se necessário, execute cada cenário várias vezes e apresente:
+
+* quantidade de repetições;
+* tempo total;
+* tempo médio;
+* eventualmente mínimo/máximo.
+
+Não complique excessivamente.
+
+O objetivo é obter uma medição simples, compreensível e reproduzível.
+
+IMPORTANTE:
+
+NÃO invente números.
+
+Todos os resultados devem ser produzidos pela execução real do benchmark.
+
+==================================================
+5. BENCHMARK — DIFERENTES VOLUMES
+=================================
+
+Mantenha pelo menos:
+
+100
+1.000
+10.000
+
+produtos.
+
+Se a implementação atual gerar um grafo sintético em cadeia, preserve essa abordagem caso ela seja coerente com o benchmark existente.
+
+Documente claramente:
+
+* quantidade de produtos;
+* estrutura do grafo utilizada;
+* operação medida;
+* profundidade utilizada na recomendação;
+* quantidade de repetições;
+* unidade de medida.
+
+Exemplo de saída desejada:
+
+# Benchmark CONectaStore
+
+Operação: recomendação por BFS
+Profundidade máxima: X
+Repetições: X
+
+Produtos       Tempo médio
+100            X µs
+1.000          X µs
+10.000         X µs
+
+Os valores devem ser gerados pelo programa.
+
+==================================================
+6. README — ATUALIZAÇÃO
+=======================
+
+Revise completamente o README.md.
+
+Não escreva informações que não correspondam ao código real.
+
+Atualize principalmente:
+
+## Como executar
+
+## Como testar
+
+## Como executar o benchmark
+
+## Estrutura do projeto
+
+## Arquitetura
+
+## Estruturas de dados
+
+## Algoritmos
+
+## Complexidade
+
+## Desempenho
+
+## Escalabilidade
+
+## Exemplos de uso
+
+## Vídeo Pitch
+
+O README deve refletir exatamente a versão final do projeto.
+
+==================================================
+7. README — BENCHMARK
+=====================
+
+Após executar o benchmark REALMENTE, atualize a seção de desempenho.
+
+Não utilize valores antigos se o benchmark foi alterado.
+
+Não utilize valores estimados.
+
+Não utilize valores fictícios.
+
+Não diga “aproximadamente” se o programa fornecer uma medição real.
+
+Registre os resultados reais obtidos durante esta execução.
+
+Também informe o ambiente de execução apenas se essa informação estiver disponível de maneira confiável.
+
+Se não for possível determinar CPU, RAM ou sistema operacional com segurança, não invente.
+
+==================================================
+8. README — COMPLEXIDADE
+========================
+
+Revise a análise de complexidade com base no código REAL.
+
+Inclua pelo menos:
+
+### HashMap
+
+Complexidade esperada de acesso médio:
+
+O(1)
+
+Deixe claro que é complexidade média/amortizada conforme a operação e implementação.
+
+### Lista de adjacência
+
+Explique a representação:
+
+HashMap<VertexId, Vec<Edge>>
+
+e sua relação com:
+
+O(V + E)
+
+para armazenamento do grafo.
+
+### BFS
+
+Analise a complexidade considerando os vértices e arestas efetivamente visitados.
+
+### Recomendação
+
+Explique como:
+
+* BFS;
+* pontuação;
+* HashSet;
+* ordenação
+
+participam do processo.
+
+Não coloque uma fórmula genérica se ela não corresponder à implementação.
+
+==================================================
+9. VERIFICAÇÃO DO BFS
+=====================
+
+Analise a implementação real do BFS.
+
+Confirme:
+
+* utiliza fila adequada;
+* controla vértices visitados;
+* evita ciclos;
+* respeita max_depth;
+* retorna informações suficientes para o mecanismo de recomendação.
+
+Confirme que BFS é realmente utilizado pelo RecommendationEngine.
+
+Não aceite uma implementação apenas nominal.
+
+==================================================
+10. VERIFICAÇÃO DO SISTEMA DE RECOMENDAÇÃO
+==========================================
+
+Analise RecommendationEngine.
+
+Confirme que:
+
+* recomendação por cliente funciona;
+* recomendação por produto funciona;
+* produto origem não é recomendado;
+* recomendações duplicadas são eliminadas;
+* profundidade máxima é respeitada;
+* score é calculado de forma determinística;
+* resultados são ordenados;
+* relações do grafo realmente influenciam os resultados.
+
+Se houver alguma inconsistência, corrija.
+
+Não implemente Machine Learning.
+
+O objetivo acadêmico continua sendo estruturas de dados + grafos + algoritmos.
+
+==================================================
+11. VERIFICAÇÃO DO SCORING
+==========================
+
+Analise:
+
+score_recommendation
+
+e confirme que a fórmula implementada corresponde à documentação.
+
+Verifique especialmente:
+
+* peso da aresta;
+* tipo da aresta;
+* profundidade;
+* multiplicadores;
+* tratamento de valores inválidos;
+* ordenação.
+
+A explicação do README deve corresponder exatamente ao código.
+
+==================================================
+12. VERIFICAÇÃO DO GRAFO
+========================
+
+Confirme que o grafo utiliza LISTA DE ADJACÊNCIA.
+
+A estrutura deve continuar conceitualmente equivalente a:
+
+HashMap<VertexId, Vec<Edge>>
+
+Confirme:
+
+* vértices;
+* arestas;
+* tipos;
+* pesos;
+* vizinhança;
+* inserção;
+* consulta;
+* BFS;
+* DFS.
+
+Não substitua por matriz de adjacência.
+
+O objetivo é demonstrar a escolha consciente de lista de adjacência para um grafo potencialmente esparso.
+
+==================================================
+13. VERIFICAÇÃO DO HASHMAP
+==========================
+
+Confirme que HashMap realmente possui papel relevante na solução.
+
+Deve existir separação entre:
+
+ENTIDADES
+
+HashMap de produtos
+HashMap de clientes
+HashMap de categorias
+
+e:
+
+GRAFO
+
+HashMap de adjacência.
+
+Explique essa separação no README.
+
+==================================================
+14. PREVENÇÃO DE DUPLICIDADES
+=============================
+
+Confirme os seguintes comportamentos:
+
+1. O mesmo produto não aparece duas vezes.
+2. O produto de origem não aparece como recomendação.
+3. Um ciclo no grafo não gera loop infinito.
+4. O BFS não revisita indefinidamente os mesmos vértices.
+
+Use HashSet ou estrutura equivalente.
+
+Crie ou mantenha testes específicos para esses casos.
+
+==================================================
+15. TESTES UNITÁRIOS
+====================
+
+Execute:
+
+cargo test
+
+Verifique se os testes existentes realmente cobrem:
+
+* criação de vértices;
+* criação de arestas;
+* BFS;
+* DFS;
+* cadastro de produtos;
+* consulta de produtos;
+* cadastro de clientes;
+* recomendação;
+* duplicidades;
+* exclusão do produto origem;
+* cliente sem conexões;
+* grafo vazio;
+* scoring;
+* benchmark.
+
+Se houver uma lacuna importante, adicione o teste.
+
+Não crie testes artificiais apenas para aumentar a quantidade.
+
+Cada teste deve validar um comportamento real.
+
+==================================================
+16. TESTES DE INTEGRAÇÃO
+========================
+
+Verifique:
+
+tests/integration_recommendations.rs
+
+Confirme pelo menos:
+
+TESTE 1
+Criar entidades → criar conexões → recomendar.
+
+TESTE 2
+Garantir que não existem recomendações duplicadas.
+
+TESTE 3
+Garantir que o produto de origem não aparece.
+
+Se houver necessidade, adicione um teste de integração para o fluxo completo de recomendação.
+
+==================================================
+17. VALIDAÇÃO DE ENTRADAS DA CLI
+================================
+
+Revise as entradas da CLI.
+
+Evite que uma entrada inválida encerre o programa.
+
+Trate adequadamente:
+
+* números inválidos;
+* IDs inexistentes;
+* nomes vazios;
+* preços inválidos;
+* opções de menu inexistentes.
+
+Não é necessário criar uma interface sofisticada.
+
+O objetivo é uma CLI acadêmica estável para demonstração.
+
+==================================================
+18. MANUTENIBILIDADE
+====================
+
+Preserve a arquitetura modular existente.
+
+Não mova toda a lógica para main.rs.
+
+Mantenha:
+
+models
+graph
+repository
+recommendation
+benchmark
+utils
+
+Se a CLI estiver excessivamente grande, avalie se uma pequena extração seria útil.
+
+Porém, NÃO faça refatoração grande apenas por estética.
+
+O critério é:
+
+* baixo acoplamento;
+* alta coesão;
+* responsabilidades claras;
+* código legível;
+* facilidade de extensão.
+
+==================================================
+19. DEPENDÊNCIAS
+================
+
+Revise Cargo.toml.
+
+Como o projeto foi planejado para Rust + biblioteca padrão, mantenha dependências externas somente se forem realmente necessárias.
+
+Não adicione crates apenas para resolver problemas que podem ser resolvidos pela std.
+
+Se não houver dependências externas, mantenha assim.
+
+==================================================
+20. DOCUMENTAÇÃO
+================
+
+Revise comentários e documentação.
+
+Não transforme o código em um excesso de comentários.
+
+Documente principalmente:
+
+* estruturas complexas;
+* algoritmo BFS;
+* algoritmo DFS;
+* scoring;
+* decisões de arquitetura;
+* benchmark.
+
+Os comentários devem explicar decisões, não repetir literalmente o código.
+
+==================================================
+21. VALIDAÇÃO FINAL OBRIGATÓRIA
+===============================
+
+Depois das alterações, execute REALMENTE:
+
+cargo fmt -- --check
+
+cargo check
+
+cargo build
+
+cargo test
+
+cargo run --release --bin benchmark
+
+Depois execute a aplicação:
+
+cargo run
+
+e valide manualmente os principais fluxos da CLI.
+
+Se algum comando falhar:
+
+1. identifique a causa;
+2. corrija;
+3. execute novamente.
+
+NÃO declare o projeto concluído enquanto houver erros de compilação ou testes falhando.
+
+==================================================
+22. AUDITORIA FINAL DOS REQUISITOS
+==================================
+
+No final, faça uma tabela:
+
+| Requisito                | Status | Evidência |
+| ------------------------ | ------ | --------- |
+| Cadastro de produtos     |        |           |
+| Consulta de produtos     |        |           |
+| Cadastro de clientes     |        |           |
+| Consulta de clientes     |        |           |
+| Grafo                    |        |           |
+| Lista de adjacência      |        |           |
+| Vértices                 |        |           |
+| Arestas                  |        |           |
+| Pesos                    |        |           |
+| HashMap                  |        |           |
+| BFS                      |        |           |
+| DFS                      |        |           |
+| Recomendação por cliente |        |           |
+| Recomendação por produto |        |           |
+| Anti-duplicidade         |        |           |
+| Testes unitários         |        |           |
+| Testes de integração     |        |           |
+| Benchmark                |        |           |
+| Diferentes volumes       |        |           |
+| README                   |        |           |
+| CLI                      |        |           |
+
+Não marque “OK” simplesmente porque existe um arquivo relacionado.
+
+Verifique a funcionalidade real.
+
+==================================================
+23. RESUMO FINAL PARA O ALUNO
+=============================
+
+Ao terminar, apresente um resumo contendo:
+
+1. O que foi corrigido.
+2. Arquivos alterados.
+3. Arquivos criados.
+4. Testes executados.
+5. Resultado do cargo check.
+6. Resultado do cargo build.
+7. Resultado do cargo test.
+8. Resultado do benchmark.
+9. Volumes utilizados no benchmark.
+10. Tempo médio obtido para cada volume.
+11. Arquitetura final.
+12. Estruturas de dados utilizadas.
+13. Algoritmos utilizados.
+14. Comandos finais para execução.
+15. Eventuais pendências.
+
+IMPORTANTE:
+
+Não invente resultados.
+
+Se alguma validação não puder ser executada, informe claramente:
+
+“Não foi possível executar X porque Y.”
+
+Não diga que algo foi validado se você apenas analisou o código.
+
+==================================================
+24. CRITÉRIO DE CONCLUSÃO
+=========================
+
+Considere a tarefa concluída somente quando:
+
+[ ] Cadastro de cliente disponível na CLI.
+[ ] Benchmark possui medição suficientemente precisa.
+[ ] README atualizado.
+[ ] Complexidades coerentes com o código.
+[ ] BFS validado.
+[ ] Recomendação validada.
+[ ] Anti-duplicidade validada.
+[ ] Testes unitários executados.
+[ ] Testes de integração executados.
+[ ] cargo fmt validado.
+[ ] cargo check executado.
+[ ] cargo build executado.
+[ ] cargo test executado.
+[ ] benchmark executado.
+[ ] CLI executada.
+[ ] Nenhum erro conhecido permanece.
+[ ] Nenhum resultado foi inventado.
+
+NÃO faça commit ou push para o GitHub automaticamente.
+
+Ao finalizar, forneça o relatório final solicitado na seção 23.

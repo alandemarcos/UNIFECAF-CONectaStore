@@ -29,12 +29,7 @@ pub fn load_demo_store() -> Store {
         )
         .expect("p");
     let mouse_x = store
-        .register_product(
-            "Mouse X",
-            informatica.id,
-            189.90,
-            "Ergonômico sem fio",
-        )
+        .register_product("Mouse X", informatica.id, 189.90, "Ergonômico sem fio")
         .expect("p");
     let teclado = store
         .register_product(
@@ -45,12 +40,7 @@ pub fn load_demo_store() -> Store {
         )
         .expect("p");
     let monitor = store
-        .register_product(
-            "Monitor 27 4K",
-            eletronicos.id,
-            2199.00,
-            "IPS, 144Hz",
-        )
+        .register_product("Monitor 27 4K", eletronicos.id, 2199.00, "IPS, 144Hz")
         .expect("p");
     let smartphone = store
         .register_product(
@@ -61,20 +51,10 @@ pub fn load_demo_store() -> Store {
         )
         .expect("p");
     let capa = store
-        .register_product(
-            "Capa Smartphone Z",
-            celulares.id,
-            79.90,
-            "Antichoque",
-        )
+        .register_product("Capa Smartphone Z", celulares.id, 79.90, "Antichoque")
         .expect("p");
     let livro_rust = store
-        .register_product(
-            "Rust em Ação",
-            livros.id,
-            189.00,
-            "Programação de sistemas",
-        )
+        .register_product("Rust em Ação", livros.id, 189.00, "Programação de sistemas")
         .expect("p");
     let livro_algos = store
         .register_product(
@@ -85,28 +65,13 @@ pub fn load_demo_store() -> Store {
         )
         .expect("p");
     let lampada = store
-        .register_product(
-            "Lâmpada LED Smart",
-            casa.id,
-            99.90,
-            "Wi-Fi, dimmer",
-        )
+        .register_product("Lâmpada LED Smart", casa.id, 99.90, "Wi-Fi, dimmer")
         .expect("p");
     let mesa = store
-        .register_product(
-            "Mesa Escritório",
-            moveis.id,
-            899.00,
-            "120cm, ajustável",
-        )
+        .register_product("Mesa Escritório", moveis.id, 899.00, "120cm, ajustável")
         .expect("p");
     let camiseta = store
-        .register_product(
-            "Camiseta Dev",
-            vestuario.id,
-            79.00,
-            "Algodão, estampa Rust",
-        )
+        .register_product("Camiseta Dev", vestuario.id, 79.00, "Algodão, estampa Rust")
         .expect("p");
 
     store
@@ -138,9 +103,7 @@ pub fn load_demo_store() -> Store {
     store
         .link_purchase(ana.id, notebook_a.id, 1.0)
         .expect("buy");
-    store
-        .link_interest(ana.id, monitor.id, 0.7)
-        .expect("int");
+    store.link_interest(ana.id, monitor.id, 0.7).expect("int");
     store
         .link_rating(ana.id, notebook_a.id, 0.95)
         .expect("rate");
@@ -148,9 +111,7 @@ pub fn load_demo_store() -> Store {
     store
         .link_purchase(bruno.id, smartphone.id, 1.0)
         .expect("buy");
-    store
-        .link_interest(bruno.id, capa.id, 0.8)
-        .expect("int");
+    store.link_interest(bruno.id, capa.id, 0.8).expect("int");
 
     store
         .link_purchase(carla.id, livro_rust.id, 1.0)

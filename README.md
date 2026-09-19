@@ -4,170 +4,229 @@ Sistema de recomendação de produtos baseado em grafos para a disciplina **Data
 
 ## Objetivo
 
-Demonstrar, de forma prática e tecnicamente justificável, o uso de **grafos**, **HashMap** e **algoritmos de percurso (BFS)** para gerar recomendações de produtos a partir de relações entre clientes, produtos e categorias.
+Demonstrar o uso de **grafos**, **HashMap** e **BFS** para gerar recomendações a partir de relações entre clientes, produtos e categorias.
 
 ## Problema
 
-A MegaStore possui um catálogo amplo, mas recomendações baseadas apenas em “mais vendidos” ou mesma categoria ignoram relações ricas: compras, interesses, similaridade, avaliações e pertencimento a categorias. O ConectaStore modela essas relações explicitamente.
+Recomendações baseadas só em “mais vendidos” ou mesma categoria ignoram compras, interesses, similaridade, avaliações e categorias. O ConectaStore modela essas relações explicitamente.
 
 ## Solução
 
-1. Entidades (`Product`, `Customer`, `Category`) são armazenadas em **HashMap** para consulta O(1) média por ID.
-2. Relações são **vértices** (cliente, produto, categoria) e **arestas ponderadas** (compra, similar, interesse, etc.) em um **grafo com lista de adjacência**.
-3. **BFS** explora o grafo a partir de um cliente ou produto, com limite de profundidade.
-4. Produtos alcançados recebem **pontuação** derivada do peso da aresta, tipo de relação e distância no grafo.
-5. **HashSet** evita duplicatas e revisitas desnecessárias durante o percurso.
+1. Entidades em **HashMap** (`Product`, `Customer`, `Category`).
+2. Relações como **vértices** e **arestas ponderadas** em **lista de adjacência**.
+3. **BFS** com limite de profundidade.
+4. **Pontuação** determinística e ordenação.
+5. **HashSet** para evitar duplicatas e revisitas no BFS.
 
-## Modelagem do Grafo
+## Arquitetura
 
-| Elemento | Representação |
-|----------|----------------|
-| Vértices | `VertexKind`: Customer, Product, Category |
-| Arestas | `Edge`: destino, `EdgeType`, `weight` |
-| Pesos | Compra/similaridade/interesse refletem força da relação |
-| Lista de adjacência | `HashMap<VertexId, Vec<Edge>>` — adequada a grafos esparsos (catálogo grande, poucas relações por item) |
-| HashMap de entidades | `HashMap<ProductId, Product>`, etc. — separado da topologia do grafo |
+Fluxo de dependência:
 
-**Por que lista de adjacência (e não matriz)?** O número de produtos é muito maior que o grau médio de cada vértice; matriz seria O(V²) em memória. Lista de adjacência escala com V + E.
+```
+models → graph → repository → recommendation
+```
 
-**Por que HashMap?** Cadastro e consulta por ID devem evitar busca linear em catálogos grandes.
+Módulos auxiliares: `utils` (dados demo), `benchmark` (desempenho), `main` (CLI).
 
-## Algoritmo de Recomendação
+| Módulo | Papel |
+|--------|--------|
+| `models/` | Tipos de domínio e IDs tipados |
+| `graph/` | Lista de adjacência, BFS, DFS, `EdgeType` |
+| `repository/` | `Store`: HashMaps + sincronização com vértices/arestas |
+| `recommendation/` | `RecommendationEngine` + `score_recommendation` |
+| `benchmark/` | Grafo sintético e medição com `Instant` |
+| `utils/` | `load_demo_store()` |
 
-1. Obtém o `VertexId` do cliente ou produto inicial (HashMap interno no `Store`).
-2. Executa **BFS** com `VecDeque` (fila) e `HashSet` (visitados), até `max_depth`.
-3. Para cada vértice do tipo **Product** alcançado:
-   - Ignora produtos já comprados (recomendação por cliente) ou o produto origem.
-   - Usa `HashSet<ProductId>` para **não repetir** o mesmo produto na lista final.
-4. Calcula `score = (weight × multiplicador_do_tipo) / profundidade` e ordena decrescente.
-
-**Por que BFS?** Recomendações por proximidade no grafo correspondem naturalmente a “expansão em camadas”: primeiro vizinhos diretos (compras/similares), depois vizinhos de vizinhos. BFS garante a profundidade mínima até cada nó, o que alinha score e interpretabilidade no pitch.
-
-DFS também está implementado (`graph::dfs`) como recurso complementar de percurso, mas a recomendação principal usa BFS.
-
-## Estrutura do Projeto
+## Estrutura do projeto
 
 ```
 src/
-├── main.rs              # CLI interativa
-├── lib.rs               # exports da biblioteca
-├── models/              # Product, Customer, Category, IDs
-├── graph/               # lista de adjacência, BFS, DFS, EdgeType
-├── repository/          # Store + HashMaps + sincronização com o grafo
-├── recommendation/      # motor de recomendação e pontuação
-├── benchmark/           # dados sintéticos e medição com Instant
-└── utils/               # dados de demonstração (load_demo_store)
+├── main.rs                 # CLI (menu 1–12)
+├── bin/benchmark.rs        # benchmark standalone
+├── lib.rs
+├── models/
+├── graph/
+├── repository/
+├── recommendation/
+├── benchmark/
+└── utils/
 tests/
 └── integration_recommendations.rs
+docs/
+└── ANALISE_IMPLEMENTACAO.md
 ```
+
+## Estruturas de dados
+
+### Entidades (repositório)
+
+Separadas do grafo, acesso por ID:
+
+- `HashMap<ProductId, Product>`
+- `HashMap<CustomerId, Customer>`
+- `HashMap<CategoryId, Category>`
+- `HashMap<ProductId, VertexId>` (e equivalentes para cliente/categoria)
+
+### Grafo (lista de adjacência)
+
+- `HashMap<VertexId, Vec<Edge>>` — **não** usa matriz de adjacência.
+- Cada `Edge` contém vértice destino, `EdgeType` e `weight`.
+- Grafo modelado como não direcionado nas ligações de negócio (`add_undirected_edge`).
+
+### Recomendação e BFS
+
+- BFS: `VecDeque` + `HashSet<VertexId>` (visitados).
+- Resultado final: `HashSet<ProductId>` para uma ocorrência por produto.
+
+## Algoritmos
+
+### BFS (`graph::bfs`)
+
+- Fila `VecDeque`; marca visitados antes de enfileirar vizinhos.
+- Para em `max_depth`; não revisita vértices → sem loop infinito em ciclos.
+- `RecommendationEngine` chama `bfs` em `collect_product_recommendations`.
+
+### DFS (`graph::dfs`)
+
+- Percurso iterativo complementar; **não** usado na recomendação principal.
+
+### Pontuação (`score_recommendation`)
+
+```text
+score = (weight × EdgeType::score_multiplier()) / max(depth, 1)
+```
+
+Multiplicadores em `EdgeType::score_multiplier()` (ex.: Purchased 1.0, Similar 0.9). Resultados ordenados por `score` decrescente.
 
 ## Tecnologias
 
-- Rust (edition 2021)
-- Cargo
-- Biblioteca padrão (`HashMap`, `HashSet`, `VecDeque`, `Instant`)
+- Rust 2021, Cargo, biblioteca padrão apenas (sem dependências externas).
 
-Sem dependências externas.
-
-## Como Compilar
+## Como compilar
 
 ```bash
 cargo build
 ```
 
-## Como Executar
+Release (recomendado para benchmark):
+
+```bash
+cargo build --release
+```
+
+## Como executar
+
+CLI interativa (carrega dados de demonstração ao iniciar):
 
 ```bash
 cargo run
 ```
 
-Menu: listar/cadastrar/consultar, recomendações, info do grafo, demo e benchmark.
+Menu:
 
-## Como Executar os Testes
+| Opção | Ação |
+|-------|------|
+| 1 | Listar produtos |
+| 2 | Consultar produto |
+| 3 | Cadastrar produto |
+| 4 | Listar clientes |
+| 5 | Consultar cliente |
+| 6 | Cadastrar cliente (ID automático ou informado) |
+| 7 | Recomendar para cliente |
+| 8 | Recomendar para produto |
+| 9 | Informações do grafo |
+| 10 | Demonstração (cliente 1 / Ana) |
+| 11 | Benchmark |
+| 12 | Sair |
+
+## Como testar
 
 ```bash
 cargo test
 ```
 
-Inclui testes unitários nos módulos (`graph`, `repository`, `recommendation`, `benchmark`) e testes de integração em `tests/`.
+- **17** testes unitários na biblioteca.
+- **3** testes de integração em `tests/integration_recommendations.rs`.
 
-## Teste de Desempenho
+Formatação:
 
-## Comando para executar o benchmark
+```bash
+cargo fmt -- --check
+```
+
+## Como executar o benchmark
 
 ```bash
 cargo run --release --bin benchmark
 ```
 
-Ou na CLI: `cargo run` → opção `10`.
+Ou na CLI: opção **11**.
 
-```rust
-use conectastore::benchmark::{run_benchmark, print_benchmark_table};
-let rows = run_benchmark(&[100, 1_000, 10_000]);
-print_benchmark_table(&rows);
-```
+Parâmetros (constantes em `benchmark/runner.rs`):
 
-Volumes padrão: 100, 1.000 e 10.000 produtos (grafo sintético em cadeia de similaridade + compra inicial).
+| Parâmetro | Valor |
+|-----------|--------|
+| Volumes | 100, 1.000, 10.000 produtos |
+| Grafo | Cadeia de `Similar` + compra no produto 0 |
+| Operação | `RecommendationEngine::for_customer` (BFS) |
+| Profundidade | 6 |
+| Limite de recomendações | 20 |
+| Repetições por volume | 10 |
+| Unidade | microssegundos (média, mín, máx) |
 
-### Resultados
+### Desempenho (execução real — release)
 
-Execute o benchmark localmente e preencha com os tempos reais:
+Medição obtida neste ambiente com `cargo run --release --bin benchmark`:
 
-| Volume | Tempo (ms) |
-|--------|------------|
-| 100    | 0 (debug/release, sub-ms) |
-| 1.000  | 0 |
-| 10.000 | 3 |
+| Produtos | Média (µs) | Mín (µs) | Máx (µs) |
+|----------|------------|----------|----------|
+| 100 | 34 | 19 | 69 |
+| 1.000 | 247 | 227 | 285 |
+| 10.000 | 3871 | 2994 | 4926 |
 
-Medição obtida com:
+Reexecute o comando acima na sua máquina se precisar atualizar os números.
 
-```bash
-cargo run --release --bin benchmark
-```
+## Exemplos de uso
 
-Na CLI interativa (`cargo run`), use a opção **10**.
-
-## Exemplos de Uso
-
-Após `cargo run`:
-
-1. **Listar produtos** — opção `1`
-2. **Recomendar para cliente** — opção `6`, ID `1` (Ana Silva nos dados demo)
-3. **Demonstração** — opção `9` (fluxo Notebook A → similares)
-4. **Benchmark** — opção `10`
+1. `cargo run` → **10** — demo Ana (Notebook A → similares).
+2. **7** → cliente **1** — recomendações para Ana.
+3. **6** → Enter no ID → nome **João Teste** — novo cliente com vértice no grafo.
+4. **3** — cadastrar produto (informe ID de categoria existente, ex.: **2** = Informática).
 
 ## Complexidade
 
-| Operação | Complexidade |
-|----------|----------------|
-| Cadastro produto/cliente (HashMap insert) | O(1) médio |
-| Consulta por ID (HashMap get) | O(1) médio |
-| Inserção de vértice | O(1) médio |
-| Inserção de aresta (lista de adjacência) | O(1) amortizado |
-| BFS | O(V + E) no subgrafo visitado até a profundidade limite |
-| Recomendação | O(V + E) + O(R log R) para ordenar R candidatos |
-| Espaço do grafo | O(V + E) |
+Análise alinhada ao código atual:
 
-Valores assumem hash eficiente; pior caso teórico de HashMap é O(n), raro com boa função de hash.
+### HashMap
+
+- `get` / `insert` em entidades e adjacência: **O(1) amortizado** (média); pior caso teórico O(n).
+
+### Lista de adjacência
+
+- Armazenamento: **O(V + E)**.
+- Iterar vizinhos de um vértice: **O(grau(v))**.
+
+### BFS
+
+- No subgrafo alcançado até `max_depth`: **O(V' + E')** com V'/E' visitados; cada vértice entra no `HashSet` uma vez.
+
+### Recomendação
+
+1. BFS — O(V' + E').
+2. Filtragem + `HashSet` de produtos — O(k) sobre passos do BFS.
+3. Ordenação de candidatos — O(R log R), R = tamanho da lista antes do `truncate(limit)`.
+
+### Cadastro / consulta
+
+- Produto, cliente, categoria por ID: **O(1) amortizado** via HashMap.
+- Inserção de aresta: **O(1) amortizado** (push na `Vec` de adjacência).
 
 ## Escalabilidade
 
-Para milhões de produtos:
-
-- Manter **lista de adjacência** e grafos esparsos (só relações reais).
-- Particionar recomendação (por categoria ou por comunidade).
-- Pré-computar vizinhanças para produtos “hot”.
-- Persistência externa (não escopo deste trabalho) com IDs estáveis.
-
-O desenho atual separa **armazenamento** (HashMap), **topologia** (grafo) e **algoritmo** (BFS + score), facilitando evolução incremental.
-
-## Arquitetura
-
-- **models**: tipos de domínio puros.
-- **graph**: estruturas e algoritmos de grafos, sem regra de negócio de e-commerce.
-- **repository**: orquestra cadastros e liga entidades aos vértices.
-- **recommendation**: regras de exclusão, score e ordenação.
-- **main**: apenas CLI.
+- Manter grafo esparso e lista de adjacência.
+- Particionar buscas por categoria/comunidade em catálogos enormes.
+- Pré-computar vizinhos para itens frequentes.
+- Persistência externa fora do escopo deste trabalho.
 
 ## Vídeo Pitch
 

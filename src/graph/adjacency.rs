@@ -60,7 +60,11 @@ impl Graph {
     }
 
     pub fn edge_count(&self) -> usize {
-        self.adjacency.values().map(|edges| edges.len()).sum::<usize>() / 2
+        self.adjacency
+            .values()
+            .map(|edges| edges.len())
+            .sum::<usize>()
+            / 2
     }
 
     pub fn neighbors(&self, from: VertexId) -> Option<&[Edge]> {
@@ -81,8 +85,14 @@ impl Graph {
             edge_type: edge.edge_type,
             weight: edge.weight,
         };
-        self.adjacency.get_mut(&from).expect("vertex exists").push(edge);
-        self.adjacency.get_mut(&to).expect("vertex exists").push(reverse);
+        self.adjacency
+            .get_mut(&from)
+            .expect("vertex exists")
+            .push(edge);
+        self.adjacency
+            .get_mut(&to)
+            .expect("vertex exists")
+            .push(reverse);
         Ok(())
     }
 
@@ -95,7 +105,10 @@ impl Graph {
         if !self.vertices.contains_key(&from) || !self.vertices.contains_key(&to) {
             return Err(GraphError::VertexNotFound);
         }
-        self.adjacency.get_mut(&from).expect("vertex exists").push(edge);
+        self.adjacency
+            .get_mut(&from)
+            .expect("vertex exists")
+            .push(edge);
         Ok(())
     }
 
@@ -116,13 +129,11 @@ mod tests {
         let c = g
             .add_vertex(VertexKind::Customer(CustomerId(1)))
             .expect("customer");
-        let p = g.add_vertex(VertexKind::Product(ProductId(1))).expect("product");
-        g.add_undirected_edge(
-            c,
-            p,
-            Edge::new(p, EdgeType::Purchased, 1.0),
-        )
-        .expect("edge");
+        let p = g
+            .add_vertex(VertexKind::Product(ProductId(1)))
+            .expect("product");
+        g.add_undirected_edge(c, p, Edge::new(p, EdgeType::Purchased, 1.0))
+            .expect("edge");
         assert_eq!(g.vertex_count(), 2);
         assert_eq!(g.edge_count(), 1);
     }

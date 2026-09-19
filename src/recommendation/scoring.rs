@@ -10,7 +10,7 @@ pub struct ScoredRecommendation {
 
 /// Pontuação: combina peso da aresta, tipo de relação e proximidade (profundidade no BFS).
 ///
-/// score = (weight * type_multiplier) / depth
+/// score = (weight * type_multiplier) / depth   (depth mínimo 1)
 ///
 /// Produtos mais próximos e conectados por relações fortes aparecem primeiro.
 pub fn score_recommendation(weight: f64, edge_type: EdgeType, depth: usize) -> f64 {

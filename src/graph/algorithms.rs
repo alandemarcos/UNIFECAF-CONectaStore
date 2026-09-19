@@ -13,7 +13,8 @@ pub struct BfsStep {
 }
 
 /// BFS a partir de `start`, limitado por `max_depth`.
-/// Retorna vértices visitados (exceto o start) com profundidade e aresta usada no primeiro acesso.
+/// Usa VecDeque como fila e HashSet de visitados para evitar ciclos e revisitas.
+/// Retorna vértices alcançados (exceto o start) com profundidade e aresta do primeiro acesso.
 pub fn bfs(graph: &Graph, start: VertexId, max_depth: usize) -> Vec<BfsStep> {
     let mut result = Vec::new();
     if graph.get_vertex(start).is_none() {
@@ -128,9 +129,31 @@ mod tests {
     }
 
     #[test]
-    fn dfs_visits_without_infinite_loop() {
-        let (g, customer, _, _) = chain_graph();
-        let steps = dfs(&g, customer, 5);
-        assert!(!steps.is_empty());
+    fn bfs_handles_cycle_without_infinite_loop() {
+        let mut g = Graph::new();
+        let p1 = g.add_vertex(VertexKind::Product(ProductId(1))).expect("p1");
+        let p2 = g.add_vertex(VertexKind::Product(ProductId(2))).expect("p2");
+        let p3 = g.add_vertex(VertexKind::Product(ProductId(3))).expect("p3");
+        g.add_undirected_edge(p1, p2, Edge::new(p2, EdgeType::Similar, 1.0))
+            .expect("e1");
+        g.add_undirected_edge(p2, p3, Edge::new(p3, EdgeType::Similar, 1.0))
+            .expect("e2");
+        g.add_undirected_edge(p3, p1, Edge::new(p1, EdgeType::Similar, 1.0))
+            .expect("e3");
+        let steps = bfs(&g, p1, 10);
+        assert!(steps.len() <= 2);
+    }
+
+    #[test]
+    fn dfs_handles_cycle_without_infinite_loop() {
+        let mut g = Graph::new();
+        let p1 = g.add_vertex(VertexKind::Product(ProductId(1))).expect("p1");
+        let p2 = g.add_vertex(VertexKind::Product(ProductId(2))).expect("p2");
+        g.add_undirected_edge(p1, p2, Edge::new(p2, EdgeType::Similar, 1.0))
+            .expect("e");
+        g.add_undirected_edge(p2, p1, Edge::new(p1, EdgeType::Similar, 1.0))
+            .expect("e2");
+        let steps = dfs(&g, p1, 10);
+        assert!(steps.len() <= 1);
     }
 }

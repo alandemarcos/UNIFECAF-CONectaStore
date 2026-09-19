@@ -170,8 +170,7 @@ mod tests {
     #[test]
     fn product_recommendation_excludes_self() {
         let (store, _, notebook_a, _) = setup_store_with_chain();
-        let recs =
-            RecommendationEngine::for_product(&store, notebook_a, 4, 10).expect("recs");
+        let recs = RecommendationEngine::for_product(&store, notebook_a, 4, 10).expect("recs");
         assert!(!recs.iter().any(|r| r.product_id == notebook_a));
     }
 
@@ -187,5 +186,14 @@ mod tests {
         assert!(matches!(err, Err(RecommendationError::NoRecommendations)));
         let err2 = RecommendationEngine::for_product(&s, p.id, 2, 5);
         assert!(matches!(err2, Err(RecommendationError::NoRecommendations)));
+    }
+
+    #[test]
+    fn recommendation_respects_max_depth() {
+        let (store, customer, _, mouse) = setup_store_with_chain();
+        let shallow = RecommendationEngine::for_customer(&store, customer, 2, 10).expect("s");
+        assert!(!shallow.iter().any(|r| r.product_id == mouse));
+        let deep = RecommendationEngine::for_customer(&store, customer, 4, 10).expect("d");
+        assert!(deep.iter().any(|r| r.product_id == mouse));
     }
 }
