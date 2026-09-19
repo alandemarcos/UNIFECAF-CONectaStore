@@ -1,0 +1,18 @@
+[package]
+name = "conectastore"
+version = "0.1.0"
+edition = "2021"
+description = "CONectaStore — Sistema de Recomendação de Produtos Baseado em Grafos"
+authors = ["UNIFECAF"]
+
+[[bin]]
+name = "conectastore"
+path = "src/main.rs"
+
+[[bin]]
+name = "benchmark"
+path = "src/bin/benchmark.rs"
+
+[lib]
+name = "conectastore"
+path = "src/lib.rs"

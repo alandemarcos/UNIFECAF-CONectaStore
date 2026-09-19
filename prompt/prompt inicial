@@ -1,0 +1,713 @@
+Você é um desenvolvedor de software especializado em Rust, estruturas de dados, algoritmos de grafos, testes automatizados e desenvolvimento de aplicações acadêmicas.
+
+Preciso desenvolver a PARTE PRÁTICA de um trabalho acadêmico da disciplina “Data Structure Strategy and Implementation”.
+
+O projeto se chama:
+
+CONectaStore — Sistema de Recomendação de Produtos Baseado em Grafos
+
+A aplicação deverá ser desenvolvida integralmente em Rust e deverá demonstrar, de forma prática e tecnicamente justificável, o uso de grafos e estruturas de dados complementares para gerar recomendações de produtos.
+
+IMPORTANTE:
+Este é um trabalho acadêmico. O código deve ser funcional, organizado, legível, modular e suficientemente robusto para ser demonstrado em um vídeo de apresentação. Não implemente apenas um protótipo superficial.
+
+==================================================
+
+1. CONTEXTO DO PROBLEMA
+   ==================================================
+
+A empresa fictícia MegaStore possui milhões de produtos e deseja melhorar suas recomendações.
+
+O sistema atual apresenta principalmente produtos mais vendidos ou produtos da mesma categoria, sem considerar adequadamente as relações entre:
+
+* clientes;
+* produtos;
+* categorias;
+* compras;
+* interesses;
+* avaliações;
+* similaridades.
+
+O objetivo do ConectaStore é representar essas relações por meio de um grafo e utilizar algoritmos de percurso para identificar produtos relacionados e gerar recomendações.
+
+A solução deve demonstrar como grafos e estruturas de dados complementares podem ser utilizados para gerar recomendações relevantes em um catálogo de grande volume.
+
+==================================================
+2. OBJETIVOS DA IMPLEMENTAÇÃO
+=============================
+
+O sistema deve contemplar obrigatoriamente:
+
+1. Cadastro de produtos.
+2. Consulta de produtos.
+3. Cadastro de clientes.
+4. Construção do grafo.
+5. Criação e gerenciamento de conexões.
+6. Representação de produtos, clientes e/ou categorias como vértices.
+7. Representação das relações como arestas.
+8. Utilização de pesos nas conexões quando fizer sentido.
+9. Recomendação de produtos a partir de um cliente.
+10. Recomendação de produtos a partir de um produto.
+11. Utilização de BFS, DFS ou outro algoritmo de grafos devidamente justificado.
+12. Utilização de HashMap ou estruturas equivalentes para acesso eficiente.
+13. Prevenção de recomendações duplicadas.
+14. Testes unitários.
+15. Testes de integração.
+16. Medição básica do tempo de execução.
+17. Execução dos testes com diferentes volumes de dados.
+18. Documentação completa no README.md.
+
+==================================================
+3. TECNOLOGIA
+=============
+
+Utilize:
+
+* Rust;
+* Cargo;
+* biblioteca padrão do Rust sempre que possível.
+
+Evite dependências externas desnecessárias.
+
+Antes de adicionar qualquer crate, avalie se a funcionalidade pode ser implementada adequadamente utilizando a biblioteca padrão.
+
+O projeto deve compilar utilizando:
+
+cargo build
+
+E executar utilizando:
+
+cargo run
+
+Os testes devem funcionar utilizando:
+
+cargo test
+
+==================================================
+4. ARQUITETURA
+==============
+
+Organize o projeto de forma modular.
+
+Estrutura mínima esperada:
+
+megastore/
+├── src/
+│   ├── main.rs
+│   ├── models/
+│   ├── graph/
+│   ├── repository/
+│   ├── recommendation/
+│   ├── benchmark/
+│   └── utils/
+├── tests/
+├── Cargo.toml
+└── README.md
+
+Você pode ajustar essa estrutura caso exista uma justificativa técnica melhor, mas mantenha clara separação de responsabilidades.
+
+Não coloque toda a aplicação dentro de main.rs.
+
+==================================================
+5. MODELAGEM DOS DADOS
+======================
+
+Crie estruturas adequadas para representar pelo menos:
+
+Product
+Customer
+Category
+
+O produto deve possuir informações como:
+
+* id;
+* nome;
+* categoria;
+* preço;
+* demais informações que sejam úteis para demonstração.
+
+O cliente deve possuir:
+
+* id;
+* nome;
+* histórico ou relações de produtos.
+
+As categorias também devem possuir identificação adequada.
+
+Utilize tipos apropriados do Rust.
+
+Os IDs devem permitir acesso rápido através de HashMap.
+
+==================================================
+6. MODELAGEM DO GRAFO
+=====================
+
+Modele explicitamente o grafo.
+
+A solução deve utilizar preferencialmente uma LISTA DE ADJACÊNCIA.
+
+Não utilize matriz de adjacência para o grafo principal.
+
+A estrutura deve permitir representar diferentes tipos de vértices e relações.
+
+Uma possibilidade é utilizar um enum semelhante a:
+
+VertexType:
+
+* Customer
+* Product
+* Category
+
+E relações como:
+
+EdgeType:
+
+* Purchased
+* Interested
+* Similar
+* BelongsTo
+* Rated
+
+Não copie cegamente essa estrutura se existir uma solução melhor.
+
+Analise a necessidade e escolha uma modelagem adequada.
+
+As arestas devem poder armazenar:
+
+* vértice de origem;
+* vértice de destino;
+* tipo da relação;
+* peso.
+
+Explique essa decisão no README.
+
+==================================================
+7. HASHMAP
+==========
+
+Utilize HashMap para permitir acesso rápido aos objetos pelo ID.
+
+Exemplos:
+
+HashMap<ProductId, Product>
+HashMap<CustomerId, Customer>
+
+O sistema não deve depender de buscas lineares sempre que um acesso por identificador puder ser resolvido de maneira eficiente utilizando HashMap.
+
+A arquitetura deve deixar clara a diferença entre:
+
+* armazenamento dos objetos;
+* representação das conexões;
+* algoritmos de recomendação.
+
+==================================================
+8. ALGORITMOS DE GRAFOS
+=======================
+
+Implemente pelo menos um algoritmo de percurso de grafos.
+
+Preferencialmente implemente BFS.
+
+Também pode implementar DFS se isso agregar valor à demonstração.
+
+A implementação deve ser real e não simulada.
+
+Para BFS, utilize estruturas adequadas, como:
+
+* VecDeque;
+* HashSet.
+
+Evite visitar o mesmo vértice repetidamente.
+
+O algoritmo deve conseguir percorrer as conexões do cliente/produto e encontrar produtos relacionados.
+
+==================================================
+9. SISTEMA DE RECOMENDAÇÃO
+==========================
+
+Implemente um mecanismo de recomendação baseado nas relações do grafo.
+
+Exemplo conceitual:
+
+Cliente A
+↓ comprou
+Produto 1
+↓ similar
+Produto 2
+↓ similar
+Produto 3
+
+O sistema deve conseguir identificar produtos relacionados e apresentá-los como recomendações.
+
+Também deve ser possível solicitar:
+
+“Recomende produtos para o cliente X”
+
+e:
+
+“Encontre produtos relacionados ao produto Y”
+
+As recomendações devem:
+
+* evitar duplicidades;
+* evitar recomendar o próprio produto consultado;
+* respeitar profundidade máxima de busca quando aplicável;
+* considerar as relações existentes;
+* permitir ordenar ou priorizar recomendações através dos pesos das arestas ou outro critério tecnicamente justificável.
+
+Explique no código e README como o algoritmo chega às recomendações.
+
+==================================================
+10. PONTUAÇÃO DAS RECOMENDAÇÕES
+===============================
+
+Não faça uma recomendação puramente aleatória.
+
+Implemente um mecanismo simples e compreensível de pontuação.
+
+Por exemplo, a pontuação pode considerar:
+
+* proximidade no grafo;
+* peso da relação;
+* quantidade de conexões encontradas;
+* tipo da relação.
+
+Não é necessário implementar Machine Learning.
+
+O objetivo é demonstrar claramente o funcionamento de estruturas de dados e algoritmos de grafos.
+
+A regra de pontuação deve ser simples o suficiente para ser explicada durante o vídeo pitch.
+
+==================================================
+11. PREVENÇÃO DE DUPLICIDADE
+============================
+
+O sistema deve impedir que o mesmo produto apareça várias vezes na lista de recomendações.
+
+Utilize uma estrutura adequada, como HashSet, durante o processamento.
+
+Também evite:
+
+* ciclos infinitos;
+* visitas repetidas desnecessárias;
+* recomendar o próprio item consultado.
+
+==================================================
+12. INTERFACE DE EXECUÇÃO
+=========================
+
+Como o projeto é acadêmico, implemente uma interface de linha de comando (CLI) simples e organizada.
+
+Ao executar:
+
+cargo run
+
+O usuário deverá conseguir acessar opções como:
+
+1. Listar produtos
+2. Consultar produto
+3. Cadastrar produto
+4. Listar clientes
+5. Consultar cliente
+6. Recomendar produtos para cliente
+7. Recomendar produtos relacionados a produto
+8. Exibir informações do grafo
+9. Executar demonstração
+10. Executar benchmark
+11. Sair
+
+A interface deve ser clara para ser utilizada durante a gravação do vídeo.
+
+==================================================
+13. DADOS DE DEMONSTRAÇÃO
+=========================
+
+Crie um conjunto inicial de dados fictícios.
+
+Utilize categorias como:
+
+* Eletrônicos;
+* Informática;
+* Celulares;
+* Livros;
+* Casa;
+* Móveis;
+* Vestuário.
+
+Crie quantidade suficiente de produtos e clientes para demonstrar claramente as conexões.
+
+Crie relações de:
+
+* compra;
+* similaridade;
+* categoria;
+* interesse;
+* avaliação, se utilizado.
+
+Os dados devem ser coerentes.
+
+Por exemplo:
+
+Cliente 1 compra Notebook A.
+
+Notebook A possui relação de similaridade com Notebook B.
+
+Notebook B possui relação com Mouse X.
+
+O sistema deve conseguir utilizar essas conexões durante a recomendação.
+
+==================================================
+14. TESTES UNITÁRIOS
+====================
+
+Crie testes unitários para os principais componentes.
+
+Inclua testes para:
+
+* cadastro de produto;
+* consulta de produto;
+* cadastro de cliente;
+* inserção de vértices;
+* criação de arestas;
+* BFS;
+* recomendações;
+* prevenção de duplicidades;
+* consulta de elementos inexistentes;
+* casos de grafo vazio;
+* casos sem recomendações.
+
+Os testes devem utilizar #[test].
+
+==================================================
+15. TESTES DE INTEGRAÇÃO
+========================
+
+Crie testes dentro de:
+
+tests/
+
+Os testes devem verificar o funcionamento integrado do sistema.
+
+Inclua pelo menos cenários como:
+
+1. Criar produtos.
+2. Criar clientes.
+3. Criar conexões.
+4. Executar recomendação.
+5. Verificar resultados.
+
+Outro teste deve verificar que produtos duplicados não aparecem nas recomendações.
+
+==================================================
+16. TESTE DE DESEMPENHO
+=======================
+
+Implemente uma medição básica do tempo de execução.
+
+Não é necessário utilizar uma ferramenta sofisticada de benchmarking.
+
+Pode utilizar:
+
+std::time::Instant
+
+Teste pelo menos três volumes de dados, por exemplo:
+
+* pequeno;
+* médio;
+* grande.
+
+Exemplo conceitual:
+
+100 produtos
+1.000 produtos
+10.000 produtos
+
+Se o computador permitir, utilize volumes maiores.
+
+O importante é que o programa registre o tempo de execução da operação de recomendação.
+
+Apresente os resultados de maneira clara.
+
+Exemplo:
+
+Volume       Tempo
+100          X ms
+1.000        X ms
+10.000       X ms
+
+Não invente resultados.
+
+Os resultados devem ser gerados pela execução real do programa.
+
+==================================================
+17. README.MD
+=============
+
+Crie um README.md completo.
+
+Ele deve conter:
+
+# ConectaStore
+
+## Objetivo
+
+## Problema
+
+## Solução
+
+## Modelagem do Grafo
+
+Explique:
+
+* vértices;
+* arestas;
+* pesos;
+* lista de adjacência;
+* HashMap.
+
+## Algoritmo de Recomendação
+
+Explique o funcionamento do BFS e do mecanismo de recomendação.
+
+## Estrutura do Projeto
+
+Explique cada diretório.
+
+## Tecnologias
+
+## Como Compilar
+
+cargo build
+
+## Como Executar
+
+cargo run
+
+## Como Executar os Testes
+
+cargo test
+
+## Teste de Desempenho
+
+Explique como executar e onde os resultados são apresentados.
+
+NÃO invente resultados de benchmark.
+
+Crie uma seção preparada para receber os resultados reais após a execução.
+
+## Exemplos de Uso
+
+Mostre exemplos reais da CLI.
+
+## Complexidade
+
+Apresente a complexidade temporal e espacial das principais operações.
+
+## Escalabilidade
+
+Discuta como a solução poderia evoluir para milhões de produtos.
+
+## Arquitetura
+
+Explique a separação dos módulos.
+
+## Vídeo Pitch
+
+Deixe um placeholder:
+
+[Link do vídeo pitch]
+
+Não invente URL.
+
+==================================================
+18. COMPLEXIDADE
+================
+
+Analise tecnicamente a complexidade das operações implementadas.
+
+Considere pelo menos:
+
+* cadastro;
+* consulta;
+* inserção de vértice;
+* inserção de aresta;
+* BFS;
+* recomendação;
+* consulta HashMap.
+
+Não coloque valores de complexidade sem analisar a implementação real.
+
+A documentação deve estar coerente com o código.
+
+==================================================
+19. QUALIDADE DO CÓDIGO
+=======================
+
+Siga boas práticas de Rust.
+
+Utilize:
+
+* ownership corretamente;
+* borrowing;
+* referências quando apropriado;
+* Result/Option quando necessário;
+* enums para representar estados/tipos;
+* structs bem definidas;
+* módulos com responsabilidades claras.
+
+Evite:
+
+* unwrap() indiscriminadamente;
+* código duplicado;
+* funções gigantes;
+* lógica concentrada no main.rs;
+* variáveis sem significado;
+* dependências desnecessárias.
+
+Use nomes claros e consistentes.
+
+==================================================
+20. EXPERIÊNCIA ACADÊMICA
+=========================
+
+O projeto deve deixar evidente que as estruturas de dados foram escolhidas conscientemente.
+
+Não quero apenas um sistema que “funcione”.
+
+Quero conseguir explicar:
+
+Por que foi utilizado HashMap?
+
+Por que foi utilizada lista de adjacência?
+
+Por que BFS foi escolhido?
+
+Qual é a complexidade?
+
+Como o sistema evita duplicidades?
+
+Como o sistema pode escalar?
+
+Como o grafo representa o problema real?
+
+Essas respostas devem estar refletidas no código e no README.
+
+==================================================
+21. PROCESSO DE IMPLEMENTAÇÃO
+=============================
+
+NÃO tente criar tudo de uma vez sem validar.
+
+Siga estas etapas:
+
+ETAPA 1
+Analise os requisitos e proponha a arquitetura final.
+
+ETAPA 2
+Crie a estrutura inicial do projeto Cargo.
+
+ETAPA 3
+Implemente os modelos.
+
+ETAPA 4
+Implemente o grafo.
+
+ETAPA 5
+Implemente HashMaps/repositórios.
+
+ETAPA 6
+Implemente BFS.
+
+ETAPA 7
+Implemente o sistema de recomendação.
+
+ETAPA 8
+Implemente a CLI.
+
+ETAPA 9
+Adicione os dados de demonstração.
+
+ETAPA 10
+Crie testes unitários.
+
+ETAPA 11
+Crie testes de integração.
+
+ETAPA 12
+Implemente a medição de desempenho.
+
+ETAPA 13
+Crie o README.
+
+ETAPA 14
+Execute:
+
+cargo check
+
+cargo build
+
+cargo test
+
+cargo run
+
+Corrija todos os erros encontrados.
+
+==================================================
+22. VALIDAÇÃO FINAL
+===================
+
+Antes de finalizar, faça uma revisão completa.
+
+Verifique:
+
+[ ] Projeto compila.
+[ ] Cargo check executa sem erros.
+[ ] Cargo build executa sem erros.
+[ ] Cargo test executa com sucesso.
+[ ] Testes unitários existem.
+[ ] Testes de integração existem.
+[ ] Grafo está implementado.
+[ ] Lista de adjacência está implementada.
+[ ] HashMap está sendo utilizado.
+[ ] BFS está implementado.
+[ ] Sistema recomenda produtos.
+[ ] Recomendações não possuem duplicidades.
+[ ] Produto consultado não é recomendado para ele mesmo.
+[ ] CLI funciona.
+[ ] Dados de demonstração funcionam.
+[ ] Benchmark funciona.
+[ ] README está completo.
+[ ] README não contém resultados de benchmark inventados.
+[ ] Código está modularizado.
+[ ] Não existem dependências desnecessárias.
+[ ] Não existem URLs fictícias.
+[ ] O link do vídeo permanece como placeholder.
+
+==================================================
+23. REGRA FUNDAMENTAL
+=====================
+
+Não invente funcionalidades que não tenham relação com o problema.
+
+Não transforme o projeto em um sistema comercial complexo.
+
+O foco é demonstrar:
+
+ESTRUTURAS DE DADOS + GRAFOS + ALGORITMOS + RECOMENDAÇÃO + COMPLEXIDADE + TESTES + DESEMPENHO.
+
+A implementação deve ser suficientemente completa para representar um projeto acadêmico real, mas suficientemente simples para que eu consiga compreender e explicar todo o código durante o vídeo pitch.
+
+Ao finalizar cada etapa, valide a implementação antes de prosseguir.
+
+No final, apresente um resumo contendo:
+
+1. Arquitetura implementada.
+2. Estruturas de dados utilizadas.
+3. Algoritmos utilizados.
+4. Estrutura dos arquivos criados.
+5. Comandos para executar.
+6. Comandos para testar.
+7. Comando para executar o benchmark.
+8. Eventuais pontos que ainda precisam de intervenção manual.
+
+Não considere o trabalho concluído enquanto o projeto não tiver sido compilado e testado.
