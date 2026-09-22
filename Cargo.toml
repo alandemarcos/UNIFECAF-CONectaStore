@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 description = "CONectaStore — Sistema de Recomendação de Produtos Baseado em Grafos"
 authors = ["UNIFECAF"]
+default-run = "conectastore"
 
 [[bin]]
 name = "conectastore"
