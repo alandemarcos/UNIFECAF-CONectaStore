@@ -18,8 +18,6 @@ Recomendações baseadas só em “mais vendidos” ou mesma categoria ignoram c
 4. **Pontuação** determinística e ordenação.
 5. **HashSet** para evitar duplicatas e revisitas no BFS.
 
-
-
 ## Arquitetura
 
 Fluxo de dependência:
@@ -41,8 +39,6 @@ Módulos auxiliares: `utils` (dados demo), `benchmark` (desempenho), `main` (CLI
 | `utils/`          | `load_demo_store()`                                    |
 
 
-
-
 ## Estrutura do projeto
 
 ```
@@ -62,11 +58,7 @@ docs/
 └── ANALISE_IMPLEMENTACAO.md
 ```
 
-
-
 ## Estruturas de dados
-
-
 
 ### Entidades (repositório)
 
@@ -77,26 +69,18 @@ Separadas do grafo, acesso por ID:
 - `HashMap<CategoryId, Category>`
 - `HashMap<ProductId, VertexId>` (e equivalentes para cliente/categoria)
 
-
-
 ### Grafo (lista de adjacência)
 
 - `HashMap<VertexId, Vec<Edge>>` — **não** usa matriz de adjacência.
 - Cada `Edge` contém vértice destino, `EdgeType` e `weight`.
 - Grafo modelado como não direcionado nas ligações de negócio (`add_undirected_edge`).
 
-
-
 ### Recomendação e BFS
 
 - BFS: `VecDeque` + `HashSet<VertexId>` (visitados).
 - Resultado final: `HashSet<ProductId>` para uma ocorrência por produto.
 
-
-
 ## Algoritmos
-
-
 
 ### BFS (`graph::bfs`)
 
@@ -104,13 +88,9 @@ Separadas do grafo, acesso por ID:
 - Para em `max_depth`; não revisita vértices → sem loop infinito em ciclos.
 - `RecommendationEngine` chama `bfs` em `collect_product_recommendations`.
 
-
-
 ### DFS (`graph::dfs`)
 
 - Percurso iterativo complementar; **não** usado na recomendação principal.
-
-
 
 ### Pontuação (`score_recommendation`)
 
@@ -124,8 +104,6 @@ Multiplicadores em `EdgeType::score_multiplier()` (ex.: Purchased 1.0, Similar 0
 
 - Rust 2021, Cargo, biblioteca padrão apenas (sem dependências externas).
 
-
-
 ## Como compilar
 
 ```bash
@@ -137,8 +115,6 @@ Release (recomendado para benchmark):
 ```bash
 cargo build --release
 ```
-
-
 
 ## Como executar
 
@@ -167,8 +143,6 @@ Menu:
 | 12    | Sair                                           |
 
 
-
-
 ## Como testar
 
 ```bash
@@ -183,8 +157,6 @@ Formatação:
 ```bash
 cargo fmt -- --check
 ```
-
-
 
 ## Como executar o benchmark
 
@@ -208,8 +180,6 @@ Parâmetros (constantes em `benchmark/runner.rs`):
 | Unidade                 | microssegundos (média, mín, máx)           |
 
 
-
-
 ### Desempenho (execução real — release)
 
 Medição obtida neste ambiente com `cargo run --release --bin benchmark`:
@@ -231,8 +201,6 @@ Reexecute o comando acima na sua máquina se precisar atualizar os números.
 3. **6** → Enter no ID → nome **João Teste** — novo cliente com vértice no grafo.
 4. **3** — cadastrar produto (informe ID de categoria existente, ex.: **2** = Informática).
 
-
-
 ## Complexidade
 
 Análise alinhada ao código atual:
@@ -241,20 +209,14 @@ Análise alinhada ao código atual:
 
 - `get` / `insert` em entidades e adjacência: **O(1) amortizado** (média); pior caso teórico O(n).
 
-
-
 ### Lista de adjacência
 
 - Armazenamento: **O(V + E)**.
 - Iterar vizinhos de um vértice: **O(grau(v))**.
 
-
-
 ### BFS
 
 - No subgrafo alcançado até `max_depth`: **O(V' + E')** com V'/E' visitados; cada vértice entra no `HashSet` uma vez.
-
-
 
 ### Recomendação
 
@@ -262,14 +224,10 @@ Análise alinhada ao código atual:
 2. Filtragem + `HashSet` de produtos — O(k) sobre passos do BFS.
 3. Ordenação de candidatos — O(R log R), R = tamanho da lista antes do `truncate(limit)`.
 
-
-
 ### Cadastro / consulta
 
 - Produto, cliente, categoria por ID: **O(1) amortizado** via HashMap.
 - Inserção de aresta: **O(1) amortizado** (push na `Vec` de adjacência).
-
-
 
 ## Escalabilidade
 
@@ -278,8 +236,10 @@ Análise alinhada ao código atual:
 - Pré-computar vizinhos para itens frequentes.
 - Persistência externa fora do escopo deste trabalho.
 
-
-
 ## Vídeo Pitch
 
 [Link do vídeo pitch]
+
+## Link do Repositório
+
+[https://github.com/alandemarcos/UNIFECAF-CONectaStore](https://github.com/alandemarcos/UNIFECAF-CONectaStore)
