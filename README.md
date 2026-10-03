@@ -238,7 +238,7 @@ Análise alinhada ao código atual:
 
 ## Vídeo Pitch
 
-[https://youtu.be/5UPjZ6fAVVk] (https://youtu.be/5UPjZ6fAVVk)
+[https://youtu.be/5UPjZ6fAVVk](https://youtu.be/5UPjZ6fAVVk)
 
 ## Link do Repositório
 
