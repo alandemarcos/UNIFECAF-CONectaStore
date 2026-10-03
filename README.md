@@ -238,8 +238,13 @@ Análise alinhada ao código atual:
 
 ## Vídeo Pitch
 
-[Link do vídeo pitch]
+[https://youtu.be/5UPjZ6fAVVk] (https://youtu.be/5UPjZ6fAVVk)
 
 ## Link do Repositório
 
 [https://github.com/alandemarcos/UNIFECAF-CONectaStore](https://github.com/alandemarcos/UNIFECAF-CONectaStore)
+
+
+
+
+
